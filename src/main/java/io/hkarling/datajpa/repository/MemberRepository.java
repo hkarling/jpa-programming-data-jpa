@@ -4,6 +4,10 @@ import io.hkarling.datajpa.entity.Member;
 import io.hkarling.datajpa.repository.dto.MemberDTO;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -29,5 +33,20 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     @Query("select m from Member m where m.username in :names")
     List<Member> findByNames(@Param("names") Collection<String> names);
+
+    // 다양한 반환타입 지원
+    List<Member> findListByUsername(String username);
+
+    Member findMemberByUsername(String username);
+
+    Optional<Member> findOptionalByUsername(String username);
+
+    // 페이징
+    // @Query(value = "select m from Member m left join m.team t",
+    //    countQuery = "select count(m.username) from Member m") // total query 의 최적화
+    @Query(value = "select m from Member m")
+    Page<Member> findByAge(int age, Pageable pageable); // page query + total count query
+    // Slice<Member> findByAge(int age, Pageable pageable); // total count query 가 나가지 않는다. limit+1 개를 불러온다.
+    // Slice<Member> findByAge(int age, Pageable pageable);
 
 }

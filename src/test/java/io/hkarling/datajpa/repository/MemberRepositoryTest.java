@@ -8,10 +8,16 @@ import io.hkarling.datajpa.entity.Team;
 import io.hkarling.datajpa.repository.dto.MemberDTO;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -134,5 +140,74 @@ class MemberRepositoryTest {
         for (Member member : userList) {
             System.out.println(member);
         }
+    }
+
+    @Test
+    public void returnType() {
+        Member m1 = new Member("AAA", 10);
+        Member m2 = new Member("BBB", 20);
+        Member m3 = new Member("BBB", 30);
+        memberRepository.save(m1);
+        memberRepository.save(m2);
+        memberRepository.save(m3);
+
+
+        List<Member> aaa = memberRepository.findListByUsername("AAA");
+        for (Member member : aaa) {
+            System.out.println("------member = " + member);
+        }
+
+        Member findMember = memberRepository.findMemberByUsername("AAA");
+        System.out.println("------findMember = " + findMember);
+
+        findMember = memberRepository.findMemberByUsername("CCC");
+        System.out.println("------findMember = " + findMember);
+
+        Optional<Member> optional = memberRepository.findOptionalByUsername("AAA");
+        System.out.println("------optional = " + optional);
+
+        optional = memberRepository.findOptionalByUsername("CCC");
+        System.out.println("------optional = " + optional);
+
+        /* IncorrectResultSizeDataAccessException 으로 감싸진 NonUniqueResultException */
+        //optional = memberRepository.findOptionalByUsername("BBB");
+        //System.out.println("------optional = " + optional);
+
+    }
+
+    @Test
+    public void paging() {
+        // given
+        memberRepository.save(new Member("member1", 10));
+        memberRepository.save(new Member("member2", 10));
+        memberRepository.save(new Member("member3", 10));
+        memberRepository.save(new Member("member4", 10));
+        memberRepository.save(new Member("member5", 10));
+
+        int age = 10;
+        int offset = 0;
+        int limit = 3;
+
+        PageRequest pageRequest = PageRequest.of(offset, limit, Sort.by(Direction.DESC, "username"));
+
+        // when
+        Page<Member> page = memberRepository.findByAge(age, pageRequest);
+
+        // controller로 넘길때 DTO로 반드시 전환해서 넘긴다!
+        Page<MemberDTO> toMap = page.map(m -> new MemberDTO(m.getId(), m.getUsername(), null));
+
+        // then
+        List<Member> content = page.getContent();
+        for (Member member : content) {
+            System.out.println("member = " + member);
+        }
+        System.out.println("page.getTotalElements() = " + page.getTotalElements());
+
+        assertThat(content.size()).isEqualTo(3); //조회된 데이터 수
+        assertThat(page.getTotalElements()).isEqualTo(5); //전체 데이터 수
+        assertThat(page.getNumber()).isEqualTo(0); //페이지 번호
+        assertThat(page.getTotalPages()).isEqualTo(2); //전체 페이지 번호
+        assertThat(page.isFirst()).isTrue(); //첫번째 항목인가?
+        assertThat(page.hasNext()).isTrue(); //다음 페이지가 있는가?
     }
 }

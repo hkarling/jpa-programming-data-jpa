@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -48,5 +49,11 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Page<Member> findByAge(int age, Pageable pageable); // page query + total count query
     // Slice<Member> findByAge(int age, Pageable pageable); // total count query 가 나가지 않는다. limit+1 개를 불러온다.
     // Slice<Member> findByAge(int age, Pageable pageable);
+
+    @Modifying(clearAutomatically = true)  // 없으면 InvalidDataAccessApiUsageException 뜬다.  clearAutomatically : 자동으로 flush
+    @Query("update Member m set m.age = m.age + 1 where m.age >= :age")
+    int bulkAgePlus(@Param("age") int age);
+
+
 
 }

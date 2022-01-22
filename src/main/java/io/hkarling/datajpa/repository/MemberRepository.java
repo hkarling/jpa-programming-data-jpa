@@ -5,13 +5,17 @@ import io.hkarling.datajpa.repository.dto.MemberDTO;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import javax.persistence.LockModeType;
+import javax.persistence.QueryHint;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
@@ -72,4 +76,9 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @EntityGraph("Member.all") // Entity 에 선언된 NamedEntityGraph 설정을 호출. 잘 안씀.
     List<Member> findEntityGraphByUsername(@Param("username") String username);
 
+    @QueryHints(value = @QueryHint(name = "org.hibernate.readOnly", value = "true"))
+    Member findReadOnlyByUsername(String username);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE) // JPA가 제공하는 LOCK을 사용가능
+    List<Member> findLockByUsername(String username);
 }

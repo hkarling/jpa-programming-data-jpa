@@ -1,7 +1,6 @@
 package io.hkarling.datajpa.repository;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 import io.hkarling.datajpa.entity.Member;
 import io.hkarling.datajpa.entity.Team;
@@ -11,13 +10,11 @@ import java.util.List;
 import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.test.annotation.Rollback;
@@ -75,7 +72,7 @@ class MemberRepositoryTest {
     }
 
     @Test
-    void findByUsernameAndAgeGreaterThan() {
+    public void findByUsernameAndAgeGreaterThan() {
         Member m1 = new Member("AAA", 10);
         Member m2 = new Member("AAA", 20);
         memberRepository.save(m1);
@@ -89,12 +86,12 @@ class MemberRepositoryTest {
     }
 
     @Test
-    void findHelloBy() {
+    public void findHelloBy() {
         List<Member> helloBy = memberRepository.findTop3HelloBy();
     }
 
     @Test
-    void testNamedQuery() {
+    public void testNamedQuery() {
         Member m1 = new Member("AAA", 10);
         Member m2 = new Member("AAA", 20);
         memberRepository.save(m1);
@@ -106,7 +103,7 @@ class MemberRepositoryTest {
     }
 
     @Test
-    void testFindUser() {
+    public void testFindUser() {
         Member m1 = new Member("AAA", 10);
         Member m2 = new Member("AAA", 20);
         memberRepository.save(m1);
@@ -262,5 +259,35 @@ class MemberRepositoryTest {
             System.out.println("member.getTeam().getClass() = " + member.getTeam().getClass());
             System.out.println("member = " + member.getTeam().getName());
         }
+    }
+
+    @Test
+    public void queryHint() {
+        // given
+        Member member1 = new Member("member1", 10);
+        memberRepository.save(member1);
+        entityManager.flush();
+        entityManager.clear();
+
+        // when
+        Member findMember = memberRepository.findReadOnlyByUsername("member1");
+        findMember.setUsername("member2");
+
+        entityManager.flush();
+    }
+
+    @Test
+    public void lock() {
+        // given
+        Member member1 = new Member("member1", 10);
+        memberRepository.save(member1);
+        entityManager.flush();
+        entityManager.clear();
+
+        // when
+        Member findMember = memberRepository.findLockByUsername("member1").get(0);
+        findMember.setUsername("member2");
+
+        entityManager.flush();
     }
 }

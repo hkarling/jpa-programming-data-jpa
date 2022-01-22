@@ -1,7 +1,7 @@
 package io.hkarling.datajpa.repository;
 
 import io.hkarling.datajpa.entity.Member;
-import io.hkarling.datajpa.repository.dto.MemberDTO;
+import io.hkarling.datajpa.dto.MemberDTO;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -9,7 +9,6 @@ import javax.persistence.LockModeType;
 import javax.persistence.QueryHint;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -18,7 +17,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 
-public interface MemberRepository extends JpaRepository<Member, Long> {
+public interface MemberRepository extends JpaRepository<Member, Long>, MemberRepositoryCustom {
 
     List<Member> findByUsernameAndAgeGreaterThan(String username, int age);
 
@@ -35,7 +34,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("select m.username from Member m")
     List<String> findByUsernameList();
 
-    @Query("select new io.hkarling.datajpa.repository.dto.MemberDTO(m.id, m.username, t.name) from Member m join m.team t")
+    @Query("select new io.hkarling.datajpa.dto.MemberDTO(m.id, m.username, t.name) from Member m join m.team t")
     List<MemberDTO> findMemberDTO();
 
     @Query("select m from Member m where m.username in :names")

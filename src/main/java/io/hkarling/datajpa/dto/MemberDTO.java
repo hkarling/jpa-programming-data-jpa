@@ -1,5 +1,6 @@
-package io.hkarling.datajpa.repository.dto;
+package io.hkarling.datajpa.dto;
 
+import io.hkarling.datajpa.entity.Member;
 import lombok.Data;
 
 @Data
@@ -13,5 +14,11 @@ public class MemberDTO {
         this.id = id;
         this.username = username;
         this.teamName = teamName;
+    }
+
+    public MemberDTO(Member member) {
+        this.id = member.getId();
+        this.username = member.getUsername();
+        this.teamName = member.getTeam() != null ? member.getTeam().getName() : null;
     }
 }

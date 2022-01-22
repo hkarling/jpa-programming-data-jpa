@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import io.hkarling.datajpa.entity.Member;
 import io.hkarling.datajpa.entity.Team;
-import io.hkarling.datajpa.repository.dto.MemberDTO;
+import io.hkarling.datajpa.dto.MemberDTO;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +29,8 @@ class MemberRepositoryTest {
     @Autowired private TeamRepository teamRepository;
     @PersistenceContext
     EntityManager entityManager;
+
+    @Autowired private MemberQueryRepository memberQueryRepository;
 
     @Test
     public void testMember() {
@@ -289,5 +291,10 @@ class MemberRepositoryTest {
         findMember.setUsername("member2");
 
         entityManager.flush();
+    }
+
+    @Test
+    void callCustom() {
+        List<Member> result = memberRepository.findMemberCustom();
     }
 }

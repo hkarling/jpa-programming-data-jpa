@@ -56,7 +56,7 @@ class MemberTest {
     void JpaEventBaseEntity() throws InterruptedException {
         // given
         Member member = new Member("member1");
-        memberRepository.save(member);
+        memberRepository.save(member); // @PrePersist
 
         System.out.println("findMember.createdDate() = " + member.getCreatedDate());
         //System.out.println("findMember.updatedDate() = " + findMember.getUpdatedDate());
